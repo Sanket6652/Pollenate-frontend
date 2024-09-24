@@ -25,13 +25,19 @@ const SlashCommandInput: React.FC<SlashCommandInputProps> = ({
   const dropdownRef = useRef<HTMLUListElement>(null);
 
   const commands = [
+    "Short Answer",
     "Text",
-    "Number",
     "Date",
+    "Heading1",
+    "Heading2",
+    "Heading3",
+    "Image",
+    "Divider",
     "Checkbox",
-    "Radio",
-    "Select",
-    "Textarea",
+    "PhoneNumber",
+    "Rating",
+    "Dropdown",
+    "FileUpload",
   ];
 
   useEffect(() => {

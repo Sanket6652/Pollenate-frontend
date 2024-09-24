@@ -1,5 +1,5 @@
 "use client";
-import FormBuilder from "@/component/forms/formBuilder";
+import FormBuilder from "@/component/forms/FormBuilder/FormBuilder";
 export default function Home() {
   return (
     <main className="min-h-screen flex  justify-center bg-gray-100">
