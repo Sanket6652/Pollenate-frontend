@@ -1,7 +1,9 @@
 import React from "react";
 import { FormField } from "./types";
 import SlashCommandInput from "./SlashCommandInput";
-
+import ShortAnswer from "../../common/inputfields/ShortAnswer";
+import Date from "../../common/inputfields/date";
+import StarRating from "@/component/common/inputfields/starrating";
 interface RenderFieldProps {
   field: FormField;
   index: number;
@@ -31,13 +33,12 @@ export const renderField = ({
   switch (field.type) {
     case "Date":
       return (
-        <input
-          type="date"
-          value={field.label}
-          onChange={(e) => handleInputChange(index, e.target.value)}
-          onFocus={() => handleFocus(index)}
-          onBlur={() => handleBlur()}
-          className="w-full p-2 text-lg text-gray-700 bg-gray-100 rounded-md focus:bg-gray-100 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+        <Date
+          field={field}
+          index={index}
+          handleInputChange={handleInputChange}
+          handleFocus={handleFocus}
+          handleBlur={handleBlur}
         />
       );
     case "Heading1":
@@ -94,7 +95,7 @@ export const renderField = ({
         />
       );
     case "Rating":
-      return <div className="flex">⭐⭐⭐⭐⭐</div>;
+      return <StarRating onChange={(rating) => console.log(`Selected rating: ${rating}`)} />;
     case "Dropdown":
       return (
         <select className="w-full p-2 text-lg text-gray-700 bg-gray-100 rounded-md focus:bg-gray-100 focus:ring-2 focus:ring-blue-500 transition-all duration-200">
@@ -114,24 +115,15 @@ export const renderField = ({
       );
     case "Short Answer":
       return (
-        <div className="space-y-2">
-          <input
-            type="text"
-            value={field.label}
-            onChange={(e) => handleInputChange(index, e.target.value)}
-            onKeyDown={(e) => handleKeyPress(e, index)}
-            onFocus={() => handleFocus(index)}
-            onBlur={handleBlur}
-            ref={(el) => setInputRef(el, index)}
-            placeholder="Question"
-            className="w-full p-2 text-lg text-gray-700 bg-gray-100 rounded-md focus:bg-gray-100 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-          />
-          <input
-            type="text"
-            placeholder="Short Answer"
-            className="w-full p-2 text-lg text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-          />
-        </div>
+        <ShortAnswer
+          field={field}
+          index={index}
+          handleInputChange={handleInputChange}
+          handleKeyPress={handleKeyPress}
+          handleFocus={handleFocus}
+          handleBlur={handleBlur}
+          setInputRef={setInputRef}
+        />
       );
 
     default:
@@ -146,7 +138,7 @@ export const renderField = ({
           onCommandSelect={(command) => handleCommandSelect(command, index)}
           placeholder={
             focusedField === index || field.label !== ""
-              ? "Write Something, '/' for commands"
+              ? "Type '/' for commands"
               : ""
           }
         />

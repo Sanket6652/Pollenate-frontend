@@ -3,16 +3,17 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { AddIcon, DeleteIcon } from "../Icons";
 import { FormField } from "./types";
 import { renderField } from "./renderField";
-
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 const FormBuilder = () => {
   const [titleValue, setTitleValue] = useState("");
   const defaultTitle = "Untitled";
   const [fields, setFields] = useState<FormField[]>([
-    { type: "Text", label: "" },
+    { id: "1", type: "Text", label: "", question: "" },
   ]);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [focusedField, setFocusedField] = useState<number | null>(null);
-  const [hoveredField, setHoveredField] = useState<number | null>(null);
+const [hoveredField, setHoveredField] = useState<string | null>(null);
+
   const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleTitleChange = useCallback(
@@ -22,13 +23,13 @@ const FormBuilder = () => {
     []
   );
 
-  const handleInputChange = useCallback((index: number, value: string) => {
-    setFields((prevFields) => {
-      const newFields = [...prevFields];
-      newFields[index].label = value;
-      return newFields;
-    });
-  }, []);
+  const handleInputChange = useCallback((index: number, value: string, field: 'label' | 'question') => {
+  setFields((prevFields) => {
+    const newFields = [...prevFields];
+    newFields[index][field] = value;
+    return newFields;
+  });
+}, []);
 
   const handleCommandSelect = (command: string, index: number) => {
     setFields((prevFields) => {
@@ -87,8 +88,9 @@ const FormBuilder = () => {
 
   const handleDeleteField = useCallback((index: number) => {
     setFields((prevFields) => {
-      if (prevFields.length === 1) return [{ type: "Text", label: "" }];
-      return prevFields.filter((_, i) => i !== index);
+      if (prevFields.length === 1) return [{ id: "1", type: "Text", label: "" }];
+      const newFields = prevFields.filter((_, i) => i !== index);
+      return newFields.map((field, i) => ({ ...field, id: (i + 1).toString() }));
     });
     setTimeout(() => {
       const newIndex = index === 0 ? 0 : index - 1;
@@ -100,6 +102,7 @@ const FormBuilder = () => {
       );
     }, 0);
   }, []);
+;
 
   const handleBlur = useCallback(() => {
     blurTimeoutRef.current = setTimeout(() => setFocusedField(null), 100);
@@ -114,15 +117,29 @@ const FormBuilder = () => {
     focusedField === index || hoveredField === index;
 
   const addNewField = useCallback((index: number) => {
-    const newField: FormField = { type: "Text", label: "" };
+    const newField: FormField = {
+      id: (fields.length + 1).toString(),
+      type: "Text",
+      label: "",
+      question: "",
+    };
     setFields((prevFields) => {
       const newFields = [...prevFields];
       newFields.splice(index + 1, 0, newField);
       return newFields;
     });
     setTimeout(() => inputRefs.current[index + 1]?.focus(), 0);
-  }, []);
+  }, [fields.length]);
+  
+  const onDragEnd = (result: any) => {
+    if (!result.destination) return;
 
+    const items = Array.from(fields);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setFields(items);
+  };
   return (
     <div className="p-6">
       <h1 className="text-10px font-bold mb-4 justify-center items-center text-center text-gray-700">
@@ -137,42 +154,58 @@ const FormBuilder = () => {
           placeholder="Form Title"
         />
         <div className="space-y-2">
-          {fields.map((field, index) => (
-            <div
-              key={index}
-              className="relative w-full flex items-center space-x-2 mb-2"
-              onMouseEnter={() => setHoveredField(index)}
-              onMouseLeave={() => setHoveredField(null)}
-            >
-              {showButtons(index) && (
-                <div className="absolute -left-12 top-1/2 transform -translate-y-1/2 flex">
-                  <button
-                    onClick={() => addNewField(index)}
-                    className="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                  >
-                    <AddIcon className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteField(index)}
-                    className="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                  >
-                    <DeleteIcon className="w-5 h-5" />
-                  </button>
-                </div>
-              )}
-              {renderField({
-                field,
-                index,
-                handleInputChange,
-                handleKeyPress,
-                handleFocus,
-                handleBlur,
-                setInputRef,
-                handleCommandSelect,
-                focusedField,
-              })}
-            </div>
-          ))}
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="fields">
+            {(provided) => (
+              <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
+                {fields.map((field, index) => (
+                  <Draggable key={field.id} draggableId={field.id} index={index}>
+                    {(provided) => (
+                      <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className="relative w-full flex items-center space-x-2 mb-2"
+                      onMouseEnter={() => setHoveredField(field.id)}
+                      onMouseLeave={() => setHoveredField(null)}
+                      >
+                        {showButtons(field.id) && (
+                          <div className="absolute -left-12 top-1/2 transform -translate-y-1/2 flex">
+                            <button
+                              onClick={() => addNewField(index)}
+                              className="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                            >
+                              <AddIcon className="w-5 h-5" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteField(index)}
+                              className="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                            >
+                              <DeleteIcon className="w-5 h-5" />
+                            </button>
+                          </div>
+                        )}
+                        {renderField({
+                          field,
+                          index,
+                          handleInputChange,
+                          handleKeyPress,
+                          handleFocus,
+                          handleBlur,
+                          setInputRef,
+                          handleCommandSelect,
+                          focusedField,
+                          
+                        })}
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
           <button className="bg-black text-white rounded p-2">Submit →</button>
         </div>
       </div>

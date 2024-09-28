@@ -25,19 +25,17 @@ const SlashCommandInput: React.FC<SlashCommandInputProps> = ({
   const dropdownRef = useRef<HTMLUListElement>(null);
 
   const commands = [
-    "Short Answer",
-    "Text",
-    "Date",
-    "Heading1",
-    "Heading2",
-    "Heading3",
-    "Image",
-    "Divider",
-    "Checkbox",
-    "PhoneNumber",
-    "Rating",
-    "Dropdown",
-    "FileUpload",
+    { name: "Short Answer", icon: "✏️" },
+    { name: "Long Answer", icon: "📝" },
+    { name: "Multiple Choice", icon: "🔘" },
+    { name: "Checkbox", icon: "☑️" },
+    { name: "Dropdown", icon: "🔽" },
+    { name: "Date", icon: "📅" },
+    { name: "Number", icon: "🔢" },
+    { name: "Rating", icon: "⭐" },
+    { name: "File Upload", icon: "📎" },
+    { name: "Heading", icon: "📌" },
+    { name: "Divider", icon: "➖" },
   ];
 
   useEffect(() => {
@@ -84,15 +82,16 @@ const SlashCommandInput: React.FC<SlashCommandInputProps> = ({
       {showDropdown && (
         <ul
           ref={dropdownRef}
-          className="absolute z-10 w-1/2 mt-1 bg-white border rounded-md shadow-lg"
+          className="absolute z-10 w-64 mt-1 bg-white border rounded-md shadow-lg"
         >
           {commands.map((command) => (
             <li
-              key={command}
-              className="px-3 py-2 cursor-pointer hover:bg-gray-100"
-              onClick={() => handleCommandSelect(command)}
+              key={command.name}
+              className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center"
+              onClick={() => handleCommandSelect(command.name)}
             >
-              {command}
+              <span className="mr-2">{command.icon}</span>
+              {command.name}
             </li>
           ))}
         </ul>
