@@ -20,8 +20,8 @@ const ShortAnswer: React.FC<ShortAnswerProps> = ({
   setInputRef,
 }) => {
   return (
-    <div className="space-y-2">
-      <input
+    <div className="space-y-2 w-full">
+      {/* <input
         type="text"
         value={field.label}
         onChange={(e) => handleInputChange(index, e.target.value)}
@@ -31,7 +31,7 @@ const ShortAnswer: React.FC<ShortAnswerProps> = ({
         ref={(el) => setInputRef(el, index)}
         placeholder="Question"
         className="w-full p-2 text-lg text-gray-700 bg-gray-100 rounded-md focus:bg-gray-100 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-      />
+      /> */}
       <input
         type="text"
         placeholder="Short Answer"

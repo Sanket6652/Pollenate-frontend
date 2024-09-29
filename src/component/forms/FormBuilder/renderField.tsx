@@ -4,6 +4,12 @@ import SlashCommandInput from "./SlashCommandInput";
 import ShortAnswer from "../../common/inputfields/ShortAnswer";
 import Date from "../../common/inputfields/date";
 import StarRating from "@/component/common/inputfields/starrating";
+import FileUploader from "../../common/inputfields/FileUploader";
+import PhoneNumber from "../../common/inputfields/PhoneNumber";
+import Divider from "../../common/inputfields/Divider";
+import LongAnswer from "../../common/inputfields/LongAnswer";
+import ImageField from "../../common/inputfields/ImageField";
+
 interface RenderFieldProps {
   field: FormField;
   index: number;
@@ -17,6 +23,8 @@ interface RenderFieldProps {
   setInputRef: (el: HTMLInputElement | null, index: number) => void;
   handleCommandSelect: (command: string, index: number) => void;
   focusedField: number | null;
+  hoveredField: number | null;
+  hoverIndex: number | null;
 }
 
 export const renderField = ({
@@ -29,7 +37,10 @@ export const renderField = ({
   setInputRef,
   handleCommandSelect,
   focusedField,
+  hoveredField,
+  hoverIndex
 }: RenderFieldProps) => {
+  console.log(hoveredField, focusedField, hoverIndex);
   switch (field.type) {
     case "Date":
       return (
@@ -70,12 +81,19 @@ export const renderField = ({
       );
     case "Image":
       return (
-        <div className="bg-gray-200 h-32 flex items-center justify-center">
-          Image Placeholder
-        </div>
+        <ImageField
+          value={field.value}
+          onImageUpload={(file) => {
+            // Handle the image upload logic here
+            console.log("Image selected:", file);
+            // You might want to update the field value with the image URL after upload
+            // For now, we'll just use the file name as a placeholder
+            handleInputChange(index, URL.createObjectURL(file));
+          }}
+        />
       );
     case "Divider":
-      return <hr className="my-4 border-black bg-black border-t-2" />;
+      return <Divider />;
 
     case "Checkbox":
       return (
@@ -86,16 +104,18 @@ export const renderField = ({
       );
     case "PhoneNumber":
       return (
-        <input
-          type="tel"
+        <PhoneNumber
           value={field.label}
-          onChange={(e) => handleInputChange(index, e.target.value)}
+          onChange={(value) => handleInputChange(index, value)}
           placeholder="Phone Number"
-          className="w-full p-2 text-lg text-gray-700 bg-gray-100 rounded-md focus:bg-gray-100 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
         />
       );
     case "Rating":
-      return <StarRating onChange={(rating) => console.log(`Selected rating: ${rating}`)} />;
+      return (
+        <StarRating
+          onChange={(rating) => console.log(`Selected rating: ${rating}`)}
+        />
+      );
     case "Dropdown":
       return (
         <select className="w-full p-2 text-lg text-gray-700 bg-gray-100 rounded-md focus:bg-gray-100 focus:ring-2 focus:ring-blue-500 transition-all duration-200">
@@ -106,11 +126,13 @@ export const renderField = ({
           ))}
         </select>
       );
-    case "FileUpload":
+    case "File Upload":
       return (
-        <input
-          type="file"
-          className="w-full p-2 text-lg text-gray-700 bg-gray-100 rounded-md focus:bg-gray-100 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+        <FileUploader
+          onChange={(file) => {
+            // Handle the file upload logic here
+            console.log("File selected:", file);
+          }}
         />
       );
     case "Short Answer":
@@ -125,7 +147,18 @@ export const renderField = ({
           setInputRef={setInputRef}
         />
       );
-
+    case "Long Answer":
+      return (
+        <LongAnswer
+          field={field}
+          index={index}
+          handleInputChange={handleInputChange}
+          handleKeyPress={handleKeyPress}
+          handleFocus={handleFocus}
+          handleBlur={handleBlur}
+          setInputRef={setInputRef}
+        />
+      );
     default:
       return (
         <SlashCommandInput
@@ -136,7 +169,7 @@ export const renderField = ({
           onBlur={() => handleBlur()}
           inputRef={(el) => setInputRef(el, index)}
           onCommandSelect={(command) => handleCommandSelect(command, index)}
-          placeholder={
+          placeholder={ 
             focusedField === index || field.label !== ""
               ? "Type '/' for commands"
               : ""
