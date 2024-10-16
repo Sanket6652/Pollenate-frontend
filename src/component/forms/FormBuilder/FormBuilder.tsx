@@ -44,6 +44,7 @@ const FormBuilder = () => {
       return newFields;
     });
   };
+
   const handleDeleteField = useCallback((index: number) => {
     setFields((prevFields) => {
       if (prevFields.length === 1)
@@ -64,6 +65,7 @@ const FormBuilder = () => {
       );
     }, 0);
   }, []);
+
   const addNewField = useCallback(
     (index: number) => {
       const newField: FormField = {

@@ -22,6 +22,7 @@ const SlashCommandInput: React.FC<SlashCommandInputProps> = ({
   placeholder,
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [filterText, setFilterText] = useState("");
   const dropdownRef = useRef<HTMLUListElement>(null);
 
   const commands = [
@@ -32,12 +33,16 @@ const SlashCommandInput: React.FC<SlashCommandInputProps> = ({
     { name: "Dropdown", icon: "🔽" },
     { name: "Date", icon: "📅" },
     { name: "PhoneNumber", icon: "🔢" },
-    { name: "Image", icon: "" },
+    { name: "Image", icon: "🖼️" },
     { name: "Rating", icon: "⭐" },
     { name: "File Upload", icon: "📎" },
     { name: "Heading", icon: "📌" },
     { name: "Divider", icon: "➖" },
   ];
+
+  const filteredCommands = commands.filter(command => 
+    command.name.toLowerCase().startsWith(filterText.toLowerCase())
+  );
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -46,6 +51,7 @@ const SlashCommandInput: React.FC<SlashCommandInputProps> = ({
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setShowDropdown(false);
+        setFilterText("");
       }
     };
 
@@ -58,12 +64,22 @@ const SlashCommandInput: React.FC<SlashCommandInputProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     onChange(newValue);
-    setShowDropdown(newValue.endsWith("/"));
+    
+    if (newValue.includes("/")) {
+      const parts = newValue.split("/");
+      const afterSlash = parts[parts.length - 1].trim();
+      setFilterText(afterSlash);
+      setShowDropdown(true);
+    } else {
+      setShowDropdown(false);
+      setFilterText("");
+    }
   };
 
   const handleCommandSelect = (command: string) => {
     onCommandSelect(command);
     setShowDropdown(false);
+    setFilterText("");
   };
 
   return (
@@ -83,9 +99,9 @@ const SlashCommandInput: React.FC<SlashCommandInputProps> = ({
       {showDropdown && (
         <ul
           ref={dropdownRef}
-          className="absolute z-10 w-64 mt-1 bg-white border rounded-md shadow-lg"
+          className="absolute z-10 w-64 h-64 mt-1 bg-white border rounded-md shadow-lg overflow-auto"
         >
-          {commands.map((command) => (
+          {filteredCommands.map((command) => (
             <li
               key={command.name}
               className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center"

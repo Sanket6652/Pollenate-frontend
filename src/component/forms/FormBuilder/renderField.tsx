@@ -23,8 +23,6 @@ interface RenderFieldProps {
   setInputRef: (el: HTMLInputElement | null, index: number) => void;
   handleCommandSelect: (command: string, index: number) => void;
   focusedField: number | null;
-  hoveredField: number | null;
-  hoverIndex: number | null;
 }
 
 export const renderField = ({
@@ -37,10 +35,9 @@ export const renderField = ({
   setInputRef,
   handleCommandSelect,
   focusedField,
-  hoveredField,
-  hoverIndex
+ 
 }: RenderFieldProps) => {
-  console.log(hoveredField, focusedField, hoverIndex);
+ 
   switch (field.type) {
     case "Date":
       return (
